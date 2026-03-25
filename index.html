@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>mongle 개발 체크리스트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:ital,wght@0,400;0,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --must: #C9748A; --must-bg: #FDF0F3; --must-lt: #F9D7E0;
+  --should: #6B9BC4; --should-bg: #EFF4FB; --should-lt: #D0E4F7;
+  --could: #6BA882; --could-bg: #EFF6F1; --could-lt: #C8EAD0;
+  --ink: #1A1A1A; --ink2: #666; --surface: #F6F6F6;
+  --card: #fff; --border: #EBEBEB;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--surface); color: var(--ink); }
+
+/* HEADER */
+.hdr {
+  background: linear-gradient(135deg, #C9748A, #A85570);
+  padding: 22px 20px 18px; position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 4px 20px rgba(169,85,112,.25);
+}
+.hdr-row { max-width: 900px; margin: 0 auto; }
+.logo { font-size: 20px; font-weight: 900; color: #fff; letter-spacing: -.5px; }
+.logo small { font-weight: 300; font-size: 12px; opacity: .7; margin-left: 8px; }
+.stats { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.stat {
+  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+  border-radius: 20px; padding: 5px 12px; font-size: 12px; color: #fff;
+  display: flex; align-items: center; gap: 5px;
+}
+.stat b { font-size: 14px; font-weight: 700; font-family: 'DM Mono', monospace; }
+.gbar { margin-top: 12px; background: rgba(255,255,255,.2); border-radius: 4px; height: 5px; overflow: hidden; }
+.gbar-fill { height: 100%; background: #fff; border-radius: 4px; transition: width .4s; }
+
+/* FILTER */
+.fbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 20px; position: sticky; top: 112px; z-index: 90; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+.fbar-inner { max-width: 900px; margin: 0 auto; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding: 8px 0; }
+.fbar-inner::-webkit-scrollbar { display: none; }
+.fbtn { flex-shrink: 0; padding: 6px 14px; border: none; border-radius: 20px; font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; background: transparent; color: var(--ink2); transition: all .15s; }
+.fbtn:hover { background: var(--border); }
+.fbtn.on { background: var(--ink); color: #fff; }
+.fbtn.must.on { background: var(--must); }
+.fbtn.should.on { background: var(--should); }
+.fbtn.could.on { background: var(--could); }
+
+/* MAIN */
+.main { max-width: 900px; margin: 0 auto; padding: 20px 20px 60px; }
+
+/* LEGEND */
+.legend {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 16px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+.legend-title { font-size: 12px; font-weight: 600; color: var(--ink2); }
+.legend-items { display: flex; gap: 14px; flex-wrap: wrap; }
+.li { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink2); }
+.lbox { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; }
+.lbox.todo { border: 1.5px solid var(--border); }
+.lbox.doing { border: 1.5px solid var(--must); background: var(--must-lt); color: var(--must); }
+.lbox.done { background: var(--must); color: #fff; }
+.legend-tip { margin-left: auto; font-size: 11px; color: var(--ink2); }
+
+/* CARD */
+.card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,.05); margin-bottom: 16px; overflow: hidden; transition: box-shadow .2s; }
+.card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.09); }
+.card.hide { display: none; }
+
+.card-hdr {
+  padding: 14px 18px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; user-select: none; transition: background .12s;
+}
+.card-hdr:hover { background: #FAFAFA; }
+.card.closed .card-body { display: none; }
+
+.num-badge {
+  width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 900; color: #fff;
+}
+.title-wrap { flex: 1; }
+.feat-name { font-size: 15px; font-weight: 700; }
+.feat-sub { font-size: 11px; color: var(--ink2); margin-top: 1px; }
+.type-badge { padding: 3px 9px; border-radius: 10px; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.tb-must { background: var(--must-lt); color: var(--must); }
+.tb-should { background: var(--should-lt); color: var(--should); }
+.tb-could { background: var(--could-lt); color: var(--could); }
+
+.prog-wrap { flex-shrink: 0; text-align: right; min-width: 70px; }
+.prog-num { font-size: 11px; font-weight: 600; color: var(--ink2); font-family: 'DM Mono', monospace; }
+.prog-bg { height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+.prog-bar { height: 100%; border-radius: 2px; transition: width .4s; }
+
+.chevron { width: 22px; height: 22px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--ink2); transition: transform .2s; flex-shrink: 0; }
+.card.closed .chevron { transform: rotate(-90deg); }
+
+/* TASKS */
+.card-body { padding: 0 18px 14px; }
+.task {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 6px; border-radius: 8px; cursor: pointer;
+  transition: background .12s; border-bottom: 1px solid transparent;
+}
+.task:hover { background: #F8F8F8; }
+.task:not(:last-child) { border-bottom-color: var(--border); }
+
+.chk {
+  width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+  border: 2px solid var(--border); display: flex; align-items: center;
+  justify-content: center; font-size: 11px; transition: all .18s; background: #fff;
+}
+.task-txt { font-size: 13.5px; line-height: 1.55; flex: 1; transition: color .15s; }
+
+/* status styles */
+.task[data-s="done"] .chk { border-color: var(--c); background: var(--c); color: #fff; }
+.task[data-s="done"] .task-txt { color: #BBB; text-decoration: line-through; }
+.task[data-s="doing"] .chk { border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, white); color: var(--c); font-weight: 800; font-size: 9px; }
+.task[data-s="doing"] .task-txt { font-weight: 500; }
+
+.pulse { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; opacity: 0; }
+.task[data-s="doing"] .pulse { background: var(--c); opacity: 1; animation: beat 1.4s infinite; }
+@keyframes beat { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.5)} }
+
+@keyframes pop { 0%{transform:scale(1)} 35%{transform:scale(1.2)} 70%{transform:scale(.9)} 100%{transform:scale(1)} }
+.chk.pop { animation: pop .28s ease; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 20px; right: 20px; background: #1A1A1A; color: #fff; padding: 11px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transform: translateY(8px); transition: all .2s; pointer-events: none; z-index: 999; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+@media(max-width:600px){
+  .hdr,.fbar,.main{padding-left:14px;padding-right:14px;}
+  .prog-wrap{display:none;}
+  .fbar{top:106px;}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-row">
+    <div class="logo">mongle <small>개발 체크리스트</small></div>
+    <div class="stats">
+      <div class="stat">전체 <b id="s-tot">0</b>개</div>
+      <div class="stat">✅ 완료 <b id="s-done">0</b></div>
+      <div class="stat">⚡ 진행중 <b id="s-doing">0</b></div>
+      <div class="stat">📋 미완료 <b id="s-todo">0</b></div>
+    </div>
+    <div class="gbar"><div class="gbar-fill" id="gbar" style="width:0%"></div></div>
+  </div>
+</header>
+
+<div class="fbar">
+  <div class="fbar-inner">
+    <button class="fbtn on" data-f="all">전체</button>
+    <button class="fbtn must" data-f="must">Must (P1)</button>
+    <button class="fbtn should" data-f="should">Should (P2)</button>
+    <button class="fbtn could" data-f="could">Could (P3)</button>
+    <button class="fbtn" data-f="doing">⚡ 진행중</button>
+    <button class="fbtn" data-f="todo">📋 미완료</button>
+  </div>
+</div>
+
+<main class="main">
+  <div class="legend">
+    <span class="legend-title">클릭으로 상태 변경</span>
+    <div class="legend-items">
+      <div class="li"><div class="lbox todo"></div>미완료</div>
+      <div class="li"><div class="lbox doing">진</div>진행중</div>
+      <div class="li"><div class="lbox done">✓</div>완료</div>
+    </div>
+    <span class="legend-tip">💾 자동저장</span>
+  </div>
+  <div id="root"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = [
+  { num:1, name:'일정 관리', sub:'월 캘린더 · 타임라인', type:'must',
+    tasks:[
+      '결혼 준비 일정 카테고리 정하기 (드레스 투어, 스튜디오 촬영 등)',
+      '월별 캘린더 화면 만들기',
+      '타임라인(D-day 기준 진행 단계) 화면 만들기',
+      '일정 추가 · 수정 · 삭제 기능 넣기',
+      '플래너가 수정하면 커플 화면에도 바로 반영되게 하기',
+      '일정 데이터 다른 기능(예산, 알림)과 연결하기',
+    ]
+  },
+  { num:2, name:'예산 관리', sub:'비용 명세 · 진행 상태', type:'must',
+    tasks:[
+      '예산 카테고리 정하기 (스·드·메, 웨딩홀, 예물 등)',
+      '항목별 총액 · 계약금 · 잔금 · 결제일 입력 화면 만들기',
+      '총예산 대비 사용 금액 진행 바(Progress Bar) 만들기',
+      '예산 초과 시 경고 표시 넣기',
+      '금액 입력 시 자동으로 콤마(,) 붙이기',
+      '잔금 결제일이 다가오면 알림 기능(#8)과 연결하기',
+    ]
+  },
+  { num:3, name:'AI 챗봇', sub:'웨딩 특화 LLM', type:'must',
+    tasks:[
+      '웨딩 특화 AI 답변 범위 정하기 (예약 시기, 업체 추천 등)',
+      'AI 챗봇 채팅 화면 만들기 (하단 플로팅 버튼)',
+      'LLM API 연결하고 실시간 스트리밍 답변 구현하기',
+      '웨딩 데이터 기반 RAG(검색 증강 생성) 구축하기',
+      '챗봇이 추천한 업체 카드 클릭 시 업체 상세 페이지로 이동하기',
+      '하루 질문 횟수 제한 걸기',
+    ]
+  },
+  { num:4, name:'업체 리스트', sub:'카테고리 · 후기 조회', type:'must',
+    tasks:[
+      '업체 카테고리 확정하기 (스튜디오, 드레스, 메이크업, 웨딩홀)',
+      '업체 초기 데이터 수집 및 DB에 넣기 (크롤링 or 제휴)',
+      '카테고리별 업체 목록 화면 만들기',
+      '예산 · 지역 · 스타일 필터 기능 넣기',
+      '업체 상세 페이지 만들기 (사진, 정보, 후기)',
+      '후기 정렬 기능 넣기 (최신순 / 별점순)',
+    ]
+  },
+  { num:5, name:'로그인 · 계정 연결', sub:'커플 / 플래너', type:'should',
+    tasks:[
+      '이메일 & 비밀번호 회원가입 · 로그인 기능 구현하기',
+      '가입 시 역할 선택하기 (커플 / 플래너)',
+      '카카오 소셜 로그인 붙이기',
+      '초대 코드 생성 기능 만들기',
+      '초대 코드 카카오톡으로 공유하기',
+      '초대 코드 입력으로 플래너 ↔ 커플 계정 연결하기',
+      '계정 연결 해제 기능 만들기',
+    ]
+  },
+  { num:6, name:'플래너 소개', sub:'프로필 · 상담 신청', type:'should',
+    tasks:[
+      '플래너 프로필 페이지 만들기 (경력, 스타일 태그, 포트폴리오)',
+      '플래너 목록 화면 만들기 (2단 그리드)',
+      '스타일 태그로 플래너 필터링하기',
+      '상담 신청 기능 만들기 (날짜 · 시간 · 예산 입력)',
+      '상담 신청 시 플래너에게 알림 보내기',
+      '실제 이용 커플의 평점만 반영되도록 처리하기',
+    ]
+  },
+  { num:7, name:'업체 추천', sub:'조건 기반 AI 추천', type:'should',
+    tasks:[
+      '예산 · 스타일 · 지역 기반 추천 로직 만들기',
+      '홈 화면에 맞춤 추천 업체 섹션 만들기',
+      '업체 목록에 AI 추천 배지 표시하기',
+      '예산 변경 시 추천 목록 자동 업데이트하기',
+      '챗봇 대화 내용 기반으로 추천 반영하기',
+    ]
+  },
+  { num:8, name:'리마인드 알림', sub:'일정 · 잔금 알림', type:'should',
+    tasks:[
+      '일정 · 잔금 결제일 D-7 / D-3 / D-1 자동 알림 설정하기',
+      '알림 센터 화면 만들기 (읽음 / 안 읽음)',
+      '알림 탭 시 해당 일정 · 예산 화면으로 바로 이동하기',
+      '잔금 완료 체크 시 예정된 알림 자동 취소하기',
+      '푸시 알림 꺼져 있을 때 앱 내 배너로 대체 표시하기',
+    ]
+  },
+  { num:9, name:'견적 비교 · PDF', sub:'분석 · 문서화', type:'could',
+    tasks:[
+      '업체 2~3개 견적 항목별 비교 화면 만들기',
+      '내 예산 명세서를 PDF로 저장하기',
+      'PDF를 카카오톡 · 메시지로 공유하기',
+    ]
+  },
+];
+
+const COL = {must:'#C9748A',should:'#6B9BC4',could:'#6BA882'};
+const KEY = 'mongle_v2';
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY)||'{}'); } catch(e){}
+const save = () => localStorage.setItem(KEY, JSON.stringify(state));
+const sk = (n,i) => `${n}_${i}`;
+const gs = k => state[k]||'todo';
+const cycle = k => { state[k] = gs(k)==='todo'?'doing':gs(k)==='doing'?'done':'todo'; save(); };
+
+function build() {
+  const root = document.getElementById('root');
+  root.innerHTML = '';
+  DATA.forEach(f => {
+    const c = COL[f.type];
+    const div = document.createElement('div');
+    div.className = 'card'; div.dataset.type = f.type; div.dataset.n = f.num;
+
+    // header
+    const hdr = document.createElement('div');
+    hdr.className = 'card-hdr';
+    hdr.innerHTML = `
+      <div class="num-badge" style="background:${c}">${f.num}</div>
+      <div class="title-wrap">
+        <div class="feat-name">${f.name}</div>
+        <div class="feat-sub">${f.sub}</div>
+      </div>
+      <div class="type-badge tb-${f.type}">${{must:'Must·P1',should:'Should·P2',could:'Could·P3'}[f.type]}</div>
+      <div class="prog-wrap">
+        <div class="prog-num" id="pn${f.num}">0/0</div>
+        <div class="prog-bg"><div class="prog-bar" id="pb${f.num}" style="background:${c}"></div></div>
+      </div>
+      <div class="chevron">▼</div>`;
+    hdr.onclick = () => div.classList.toggle('closed');
+    div.appendChild(hdr);
+
+    // body
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    f.tasks.forEach((t, i) => {
+      const k = sk(f.num, i);
+      const row = document.createElement('div');
+      row.className = 'task'; row.dataset.k = k; row.dataset.s = gs(k);
+      row.style.setProperty('--c', c);
+      const s = gs(k);
+      const lbl = s==='done'?'✓':s==='doing'?'진':'';
+      row.innerHTML = `<div class="chk" id="chk${k}">${lbl}</div><div class="task-txt">${t}</div><div class="pulse"></div>`;
+      row.onclick = () => {
+        cycle(k);
+        const ns = gs(k);
+        row.dataset.s = ns;
+        const chk = document.getElementById('chk'+k);
+        chk.textContent = ns==='done'?'✓':ns==='doing'?'진':'';
+        chk.classList.add('pop');
+        chk.addEventListener('animationend',()=>chk.classList.remove('pop'),{once:true});
+        updateProg(f.num); updateGlobal();
+        toast({todo:'↩ 미완료',doing:'⚡ 진행중',done:'✅ 완료!'}[ns]);
+      };
+      body.appendChild(row);
+    });
+    div.appendChild(body);
+    root.appendChild(div);
+  });
+  updateAll();
+}
+
+function updateProg(n) {
+  const f = DATA.find(x=>x.num===n);
+  let tot=0,done=0;
+  f.tasks.forEach((_,i)=>{tot++;if(gs(sk(n,i))==='done')done++;});
+  const pct=tot?Math.round(done/tot*100):0;
+  document.getElementById('pn'+n).textContent=`${done}/${tot}`;
+  document.getElementById('pb'+n).style.width=pct+'%';
+}
+function updateAll() { DATA.forEach(f=>updateProg(f.num)); updateGlobal(); }
+function updateGlobal() {
+  let tot=0,done=0,doing=0;
+  DATA.forEach(f=>f.tasks.forEach((_,i)=>{tot++;const s=gs(sk(f.num,i));if(s==='done')done++;if(s==='doing')doing++;}));
+  document.getElementById('s-tot').textContent=tot;
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-doing').textContent=doing;
+  document.getElementById('s-todo').textContent=tot-done-doing;
+  document.getElementById('gbar').style.width=(tot?Math.round(done/tot*100):0)+'%';
+}
+
+// filter
+document.querySelectorAll('.fbtn').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  const f=b.dataset.f;
+  document.querySelectorAll('.card').forEach(card=>{
+    if(f==='all'){card.classList.remove('hide');return;}
+    if(['must','should','could'].includes(f)){card.classList.toggle('hide',card.dataset.type!==f);return;}
+    const n=+card.dataset.n, feat=DATA.find(x=>x.num===n);
+    let match=false;
+    feat.tasks.forEach((_,i)=>{if(gs(sk(n,i))===f)match=true;});
+    card.classList.toggle('hide',!match);
+  });
+});
+
+let tt;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(tt); tt=setTimeout(()=>el.classList.remove('show'),1600);
+}
+
+build();
+</script>
+</body>
+</html>
